@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,6 +5,7 @@ import { STORIES } from '../data';
 import Hero from '../components/Hero';
 import SectionHeading from '../components/SectionHeading';
 import { ArrowLeft, Share2 } from 'lucide-react';
+import PageTransition from '../components/PageTransition';
 
 const WeddingStoryDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -23,12 +23,7 @@ const WeddingStoryDetail: React.FC = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="bg-zinc-950"
-    >
+    <PageTransition className="bg-zinc-950">
       <div className="fixed top-24 left-6 md:left-12 z-40">
          <Link to="/gallery" className="flex items-center gap-3 font-sans text-[0.6rem] uppercase tracking-[0.4em] text-zinc-400 hover:text-white transition-colors group">
             <ArrowLeft size={16} className="group-hover:-translate-x-2 transition-transform" strokeWidth={1} />
@@ -102,7 +97,7 @@ const WeddingStoryDetail: React.FC = () => {
           </Link>
         </div>
       </section>
-    </motion.div>
+    </PageTransition>
   );
 };
 

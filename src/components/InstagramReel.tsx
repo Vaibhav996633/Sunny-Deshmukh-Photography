@@ -42,22 +42,29 @@ const InstagramReel: React.FC<InstagramReelProps> = ({ permalink, className, sty
   const cleanLink = permalink.split('?')[0].replace(/\/$/, '') + '/';
 
   return (
-    <div ref={containerRef} className={className} style={style}>
+    <div 
+      ref={containerRef} 
+      className={`relative flex items-center justify-center overflow-hidden transition-all duration-700 ${className}`} 
+      style={{
+        ...style,
+        background: 'transparent'
+      }}
+    >
         <blockquote 
             className="instagram-media" 
             data-instgrm-permalink={cleanLink}
             data-instgrm-version="14" 
             style={{ 
-                background: '#FFF', 
+                background: '#000', 
                 border: 0, 
-                borderRadius: '3px', 
-                boxShadow: '0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)', 
-                margin: '1px', 
-                maxWidth: '540px', 
+                borderRadius: '12px', 
+                boxShadow: 'none', 
+                margin: 'auto', 
+                maxWidth: '100%', 
                 minWidth: '326px', 
                 padding: 0, 
-                width: '99.375%', 
-                ...style 
+                width: '100%',
+                visibility: 'visible'
             }}
         >
         </blockquote>

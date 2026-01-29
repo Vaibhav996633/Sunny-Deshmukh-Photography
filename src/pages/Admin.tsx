@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
@@ -9,8 +8,9 @@ import {
   Video, Package as PackageIcon, Mail, Layers, ExternalLink, 
   AlertCircle, Film, Camera, CheckCircle2, Clock, PlayCircle, Loader2
 } from 'lucide-react';
+import PageTransition from '../components/PageTransition';
 
-type AdminTab = 'stills' | 'cinema' | 'packages' | 'inquiries';
+type AdminTab = 'stills' | 'cinema' | 'reels' | 'packages' | 'inquiries';
 
 const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdminTab>('stills');
@@ -28,7 +28,9 @@ const Admin: React.FC = () => {
     if (activeTab === 'stills') {
       query = supabase.from('gallery').select('*').eq('type', 'image');
     } else if (activeTab === 'cinema') {
-      query = supabase.from('gallery').select('*').eq('type', 'video');
+      query = supabase.from('gallery').select('*').eq('type', 'video').not('url', 'ilike', '%instagram.com%');
+    } else if (activeTab === 'reels') {
+      query = supabase.from('gallery').select('*').eq('type', 'video').ilike('url', '%instagram.com%');
     } else {
       query = supabase.from(activeTab).select('*');
     }
@@ -42,7 +44,7 @@ const Admin: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm('This will permanently remove the item. Proceed?')) return;
-    const table = (activeTab === 'stills' || activeTab === 'cinema') ? 'gallery' : activeTab;
+    const table = (activeTab === 'stills' || activeTab === 'cinema' || activeTab === 'reels') ? 'gallery' : activeTab;
     const { error } = await supabase.from(table).delete().eq('id', id);
     if (!error) fetchData();
   };
@@ -63,7 +65,7 @@ const Admin: React.FC = () => {
     try {
       const formData = new FormData(e.target as HTMLFormElement);
       const payload: any = Object.fromEntries(formData.entries());
-      const table = (activeTab === 'stills' || activeTab === 'cinema') ? 'gallery' : activeTab;
+      const table = (activeTab === 'stills' || activeTab === 'cinema' || activeTab === 'reels') ? 'gallery' : activeTab;
 
       // Handle Cover Image Upload (for Cinema)
       const coverInput = (e.target as HTMLFormElement).querySelector('input[name="cover_file"]') as HTMLInputElement;
@@ -77,8 +79,12 @@ const Admin: React.FC = () => {
       const fileInput = (e.target as HTMLFormElement).querySelector('input[name="file"]') as HTMLInputElement;
       if (fileInput && fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        const bucket = activeTab === 'cinema' ? 'gallery-videos' : 'gallery-images';
-        const publicUrl = await uploadFile(file, bucket);
+        // Determine bucket based on file type or tab
+        let bucket = 'gallery-images';
+        if (activeTab === 'cinema' || activeTab === 'reels' || payload.type === 'video' || file.type.startsWith('video/')) {
+            bucket = 'gallery-videos';
+        }
+        const publicUrl = await uploadFile(file, bucket as any);
         payload.url = publicUrl;
       }
       
@@ -92,8 +98,7 @@ const Admin: React.FC = () => {
         payload.is_popular = payload.is_popular === 'on';
       }
 
-      if (activeTab === 'stills') payload.type = 'image';
-      if (activeTab === 'cinema') {
+      if (activeTab === 'cinema' || activeTab === 'reels') {
           payload.type = 'video';
           // Clean URL if user pasted embed code
           if (payload.url && payload.url.includes('<blockquote')) {
@@ -113,7 +118,7 @@ const Admin: React.FC = () => {
         ({ error } = await supabase.from(table).update(payload).eq('id', editingItem.id));
       } else {
         if (!payload.url && (activeTab === 'stills')) throw new Error("File is required");
-        if (!payload.url && (activeTab === 'cinema')) throw new Error("Video URL is required");
+        if (!payload.url && (activeTab === 'cinema' || activeTab === 'reels')) throw new Error("Video source is required");
         ({ error } = await supabase.from(table).insert([payload]));
       }
 
@@ -180,12 +185,12 @@ const Admin: React.FC = () => {
   };
 
   return (
-    <div className="pt-32 pb-24 min-h-screen bg-zinc-950 px-6 md:px-12">
+    <PageTransition className="pt-32 pb-24 min-h-screen bg-zinc-950 px-6 md:px-12">
       <div className="max-w-[1400px] mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
           <SectionHeading 
             label="Studio Management" 
-            title={activeTab === 'stills' ? "Stills Archive" : activeTab === 'cinema' ? "Cinema Archive" : activeTab === 'packages' ? "Collections" : "Leads"} 
+            title={activeTab === 'stills' ? "Stills Archive" : activeTab === 'cinema' ? "Cinema Archive" : activeTab === 'reels' ? "Reels Collection" : activeTab === 'packages' ? "Collections" : "Leads"} 
           />
           
           <div className="flex gap-4">
@@ -214,7 +219,8 @@ const Admin: React.FC = () => {
         <div className="flex gap-10 border-b border-white/5 mb-16 overflow-x-auto no-scrollbar">
           {[
             { id: 'stills', label: 'Stills', icon: Camera },
-            { id: 'cinema', label: 'Cinema', icon: Film },
+            { id: 'cinema', label: 'Films', icon: Film },
+            { id: 'reels', label: 'Reels', icon: PlayCircle },
             { id: 'packages', label: 'Collections', icon: PackageIcon },
             { id: 'inquiries', label: 'Inquiries', icon: Mail },
           ].map((tab) => (
@@ -244,9 +250,9 @@ const Admin: React.FC = () => {
                 key={item.id} 
                 className="bg-zinc-900/40 border border-white/5 rounded-[2rem] overflow-hidden flex flex-col group hover:border-white/10 transition-colors"
               >
-                {(activeTab === 'stills' || activeTab === 'cinema') && (
+                {(activeTab === 'stills' || activeTab === 'cinema' || activeTab === 'reels') && (
                   <div className="aspect-[16/10] relative overflow-hidden bg-black">
-                    {activeTab === 'cinema' ? (
+                    {(activeTab === 'cinema' || activeTab === 'reels') ? (
                       <div className="w-full h-full relative group/video">
                         {/* Check if it's an Instagram link */}
                         {item.url && item.url.includes('instagram') ? (
@@ -379,49 +385,122 @@ const Admin: React.FC = () => {
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-zinc-950/90 backdrop-blur-xl">
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-zinc-900 border border-white/10 w-full max-w-xl p-12 rounded-[3rem] shadow-2xl overflow-y-auto max-h-[90vh] no-scrollbar">
                 <div className="flex justify-between items-center mb-10">
-                  <h3 className="font-serif italic text-3xl text-white">{editingItem ? 'Edit' : 'New'} {activeTab === 'stills' ? 'Still' : activeTab === 'cinema' ? 'Film' : activeTab}</h3>
+                  <h3 className="font-serif italic text-3xl text-white">{editingItem ? 'Edit' : 'New'} {activeTab === 'stills' ? 'Still' : activeTab === 'cinema' ? 'Film' : activeTab === 'reels' ? 'Reel' : activeTab}</h3>
                   <button onClick={() => setShowForm(false)} className="text-zinc-500 hover:text-white transition-colors"><X size={24} strokeWidth={1} /></button>
                 </div>
                 
                 <form onSubmit={handleSave} className="space-y-8">
-                  {(activeTab === 'stills' || activeTab === 'cinema') && (
+                  {(activeTab === 'stills' || activeTab === 'cinema' || activeTab === 'reels') && (
                     <>
                       <div className="space-y-2">
                         <label className="block font-sans text-[0.5rem] uppercase tracking-[0.3em] text-zinc-600 ml-1">Title</label>
                         <input name="title" defaultValue={editingItem?.title} placeholder="The Eternal Vow" className="w-full bg-transparent border-b border-white/10 py-4 text-white focus:outline-none focus:border-amber-600 placeholder:text-zinc-800 text-sm" />
                       </div>
-                      <div className="space-y-2">
+
+                      {activeTab === 'stills' && (
+                        <div className="space-y-2">
+                          <label className="block font-sans text-[0.5rem] uppercase tracking-[0.3em] text-zinc-600 ml-1">Content Type</label>
+                          <div className="flex gap-4">
+                            {['image', 'video'].map((type) => (
+                              <button
+                                key={type}
+                                type="button"
+                                onClick={() => {
+                                  // We can't easily change the type of a form input dynamically,
+                                  // so we'll just use a hidden input for 'type'
+                                  const typeBtn = document.getElementById(`type-${type}`) as HTMLButtonElement;
+                                  const otherBtn = document.getElementById(`type-${type === 'image' ? 'video' : 'image'}`) as HTMLButtonElement;
+                                  typeBtn.classList.add('bg-amber-600', 'text-white');
+                                  typeBtn.classList.remove('bg-zinc-800', 'text-zinc-400');
+                                  otherBtn.classList.remove('bg-amber-600', 'text-white');
+                                  otherBtn.classList.add('bg-zinc-800', 'text-zinc-400');
+                                  (document.getElementById('gallery-type-input') as HTMLInputElement).value = type;
+                                }}
+                                id={`type-${type}`}
+                                className={`px-6 py-2 rounded-full font-sans text-[0.6rem] uppercase tracking-widest transition-all ${ (editingItem?.type || 'image') === type ? 'bg-amber-600 text-white' : 'bg-zinc-800 text-zinc-400' }`}
+                              >
+                                {type}
+                              </button>
+                            ))}
+                          </div>
+                          <input type="hidden" name="type" id="gallery-type-input" defaultValue={editingItem?.type || 'image'} />
+                        </div>
+                      )}
+
+                      <div className="space-y-4">
                         <label className="block font-sans text-[0.5rem] uppercase tracking-[0.3em] text-zinc-600 ml-1">
-                          {activeTab === 'cinema' ? 'Instagram Reel Link (or full Embed Code)' : 'Upload File'} {editingItem && !editingItem.url.includes('instagram') && '(Leave empty to keep current)'}
+                          {activeTab === 'cinema' || activeTab === 'reels' ? 'Video Source' : 'Upload Content'}
                         </label>
                         
-                        {activeTab === 'cinema' ? (
-                          <div className="space-y-4">
-                             <input 
-                                name="url" 
-                                defaultValue={editingItem?.url} 
-                                placeholder="Paste URL or Embed Code here..." 
-                                className="w-full bg-transparent border-b border-white/10 py-4 text-white focus:outline-none focus:border-amber-600 placeholder:text-zinc-800 text-sm" 
-                              />
-                              <div className="space-y-2">
-                                <label className="block font-sans text-[0.5rem] uppercase tracking-[0.3em] text-zinc-600 ml-1">Cover Image (Thumbnail)</label>
-                                <input 
-                                    name="cover_file" 
+                        {activeTab === 'cinema' || activeTab === 'reels' ? (
+                          <div className="space-y-6">
+                            <div className="flex gap-4">
+                                {(activeTab === 'cinema' ? ['upload'] : ['url']).map((source) => (
+                                  <button
+                                    key={source}
+                                    type="button"
+                                    className="px-6 py-2 rounded-full font-sans text-[0.6rem] uppercase tracking-widest bg-amber-600 text-white"
+                                  >
+                                    {source === 'upload' ? 'Local Video File' : 'Instagram Reel URL'}
+                                  </button>
+                                ))}
+                            </div>
+
+                            {activeTab === 'cinema' && (
+                              <div id="cinema-upload-field">
+                                  <input 
+                                    name="file" 
                                     type="file" 
-                                    accept="image/*"
-                                    className="w-full bg-transparent border-b border-white/10 py-4 text-zinc-300 font-sans text-sm focus:outline-none focus:border-amber-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700"
-                                />
+                                    accept="video/*"
+                                    className="w-full bg-transparent border-b border-white/10 py-4 text-zinc-300 font-sans text-sm focus:outline-none focus:border-amber-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white"
+                                  />
+                                  <div className="space-y-2 mt-6">
+                                    <label className="block font-sans text-[0.5rem] uppercase tracking-[0.3em] text-zinc-600 ml-1">Cover Image (Landscape)</label>
+                                    <input 
+                                        name="cover_file" 
+                                        type="file" 
+                                        accept="image/*"
+                                        className="w-full bg-transparent border-b border-white/10 py-4 text-zinc-300 font-sans text-sm focus:outline-none focus:border-amber-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white"
+                                    />
+                                  </div>
                               </div>
+                            )}
+
+                            {activeTab === 'reels' && (
+                              <div id="cinema-url-field">
+                                  <input 
+                                    name="url" 
+                                    defaultValue={editingItem?.url} 
+                                    placeholder="Paste Instagram Reel Link here..." 
+                                    className="w-full bg-transparent border-b border-white/10 py-4 text-white focus:outline-none focus:border-amber-600 placeholder:text-zinc-800 text-sm" 
+                                  />
+                                  <div className="space-y-2 mt-6">
+                                    <label className="block font-sans text-[0.5rem] uppercase tracking-[0.3em] text-zinc-600 ml-1">Reel Thumbnail (Portrait)</label>
+                                    <input 
+                                        name="cover_file" 
+                                        type="file" 
+                                        accept="image/*"
+                                        className="w-full bg-transparent border-b border-white/10 py-4 text-zinc-300 font-sans text-sm focus:outline-none focus:border-amber-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white"
+                                    />
+                                  </div>
+                              </div>
+                            )}
                           </div>
                         ) : (
-                          <input 
-                              name="file" 
-                              type="file" 
-                              accept="image/*"
-                              className="w-full bg-transparent border-b border-white/10 py-4 text-zinc-300 font-sans text-sm focus:outline-none focus:border-amber-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700"
-                          />
+                          <div className="space-y-4">
+                            <input 
+                                name="file" 
+                                type="file" 
+                                accept="image/*,video/*"
+                                className="w-full bg-transparent border-b border-white/10 py-4 text-zinc-300 font-sans text-sm focus:outline-none focus:border-amber-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-white"
+                            />
+                            {editingItem?.url && (
+                              <p className="text-[0.6rem] text-zinc-500 uppercase tracking-widest">Current: {editingItem.url.split('/').pop()}</p>
+                            )}
+                          </div>
                         )}
                       </div>
+                      
                       <div className="space-y-2">
                         <label className="block font-sans text-[0.5rem] uppercase tracking-[0.3em] text-zinc-600 mb-3 ml-1">Category</label>
                         <select name="category" defaultValue={editingItem?.category || GalleryFilter.WEDDINGS} className="w-full bg-zinc-800 text-white p-4 rounded-2xl text-[0.6rem] uppercase tracking-[0.2em] border border-white/5 focus:border-amber-600">
@@ -466,7 +545,7 @@ const Admin: React.FC = () => {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

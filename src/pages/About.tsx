@@ -3,16 +3,12 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import SectionHeading from '../components/SectionHeading';
 import { Settings } from 'lucide-react';
+import vaibhav from '../assets/vaibhav.jpeg';
+import PageTransition from '../components/PageTransition';
 
 const About: React.FC = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.8 }}
-      className="pt-32 pb-24"
-    >
+    <PageTransition className="pt-32 pb-24">
       <div className="max-w-[1500px] mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-20 items-center mb-24">
           <motion.div
@@ -22,7 +18,7 @@ const About: React.FC = () => {
             className="lg:col-span-5 relative aspect-[4/5] overflow-hidden rounded-2xl"
           >
             <img 
-              src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2048" 
+              src={vaibhav}
               alt="Sunny Deshmukh"
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-[2000ms]"
             />
@@ -83,7 +79,7 @@ const About: React.FC = () => {
           </div>
         </section>
       </div>
-    </motion.div>
+    </PageTransition>
   );
 };
 

@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { GalleryFilter } from '../types';
 import SectionHeading from '../components/SectionHeading';
 import { Maximize2, Loader2 } from 'lucide-react';
+import PageTransition from '../components/PageTransition';
 
 const Gallery: React.FC = () => {
   const [filter, setFilter] = useState<GalleryFilter>(GalleryFilter.ALL);
@@ -34,7 +34,7 @@ const Gallery: React.FC = () => {
   const activeItem = allImages.find(i => i.id === selectedId);
 
   return (
-    <div className="pt-32 pb-20 min-h-screen">
+    <PageTransition className="pt-32 pb-20 min-h-screen">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         <SectionHeading 
           label="The Stills Archive"
@@ -117,7 +117,7 @@ const Gallery: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </PageTransition>
   );
 };
 

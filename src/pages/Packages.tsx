@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import SectionHeading from '../components/SectionHeading';
 import { Check, ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PageTransition from '../components/PageTransition';
 
 const Packages: React.FC = () => {
   const [packages, setPackages] = useState<any[]>([]);
@@ -25,7 +25,7 @@ const Packages: React.FC = () => {
   }, []);
 
   return (
-    <div className="pt-32 pb-20">
+    <PageTransition className="pt-32 pb-20">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         <SectionHeading 
           label="The Collections"
@@ -97,7 +97,7 @@ const Packages: React.FC = () => {
           <Link to="/contact" className="font-sans text-[0.6rem] uppercase tracking-[0.3em] text-zinc-500 hover:text-amber-600 transition-colors">Contact for Custom Legacy Packages</Link>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

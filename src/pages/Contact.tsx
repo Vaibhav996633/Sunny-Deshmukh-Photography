@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import SectionHeading from '../components/SectionHeading';
 import { Send, Instagram, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
+import PageTransition from '../components/PageTransition';
 
 const Contact: React.FC = () => {
   const [formState, setFormState] = useState({ name: '', email: '', date: '', message: '' });
@@ -29,7 +30,7 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="pt-32 pb-20">
+    <PageTransition className="pt-32 pb-20">
       <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-24">
           {/* Info Side */}
@@ -84,7 +85,7 @@ const Contact: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };
 

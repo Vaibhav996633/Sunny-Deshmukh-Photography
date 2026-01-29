@@ -20,15 +20,16 @@ const ScrollToTop = () => {
   return null;
 };
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const location = useLocation();
+
   return (
-    <Router>
-      <ScrollToTop />
-      <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100 selection:bg-amber-600/30">
-        <Navbar />
-        <main className="flex-grow">
-          <AnimatePresence mode="wait">
-            <Routes>
+    <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100 selection:bg-amber-600/30">
+      <Navbar />
+      <main className="flex-grow overflow-hidden">
+        <AnimatePresence mode="wait">
+          <div key={location.pathname} className="w-full">
+            <Routes location={location}>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/gallery" element={<Gallery />} />
@@ -38,10 +39,19 @@ const App: React.FC = () => {
               <Route path="/admin" element={<Admin />} />
               <Route path="/story/:slug" element={<WeddingStoryDetail />} />
             </Routes>
-          </AnimatePresence>
-        </main>
-        <Footer />
-      </div>
+          </div>
+        </AnimatePresence>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <ScrollToTop />
+      <AppContent />
     </Router>
   );
 };

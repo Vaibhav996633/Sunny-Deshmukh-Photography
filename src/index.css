@@ -8,7 +8,75 @@
     --foreground: 222.2 84% 4.9%;
   }
 
-  body {
-    @apply bg-zinc-950 text-zinc-100;
+  html {
+    scroll-behavior: smooth;
   }
+
+  body {
+    @apply bg-zinc-950 text-zinc-100 antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #09090b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d97706;
+  }
+}
+
+.ken-burns {
+  animation: ken-burns 20s ease infinite alternate;
+}
+
+@keyframes ken-burns {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glassmorphism utility */
+.glass {
+  @apply backdrop-blur-md bg-white/5 border border-white/10;
+}
+
+/* Smooth reveal animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  animation: fadeInUp 0.8s ease forwards;
 }
