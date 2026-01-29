@@ -70,7 +70,7 @@ const Cinema: React.FC = () => {
         {loading ? (
           <div className="py-20 flex flex-col items-center gap-4 text-zinc-600">
             <Loader2 className="animate-spin" size={20} />
-            <span className="uppercase tracking-widest text-[0.6rem]">Opening Reels...</span>
+            <span className="uppercase tracking-widest text-[0.6rem]">Opening Cinema...</span>
           </div>
         ) : (
           <div className="min-h-[400px]">
