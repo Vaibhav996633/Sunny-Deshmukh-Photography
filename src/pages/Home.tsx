@@ -98,7 +98,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* The Perspective Section */}
-      <section className="py-16 md:py-28 px-4 md:px-6">
+      <section className="py-12 md:py-16 px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, scale: 0.98 }}
@@ -179,8 +179,8 @@ const Home: React.FC = () => {
       </section>
 
       {/* Cinematic Folio (Stills) */}
-      <section className="py-24 px-4 md:px-12 max-w-[1700px] mx-auto overflow-hidden">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
+      <section className="py-12 md:py-16 px-4 md:px-12 max-w-[1700px] mx-auto overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
           <SectionHeading label="The Stills" title="Apertures of Grace" />
           <div className="flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-12">
             <div className="hidden md:block max-w-xs text-zinc-500 font-light text-[0.7rem] leading-relaxed italic border-l border-amber-600/30 pl-6">
@@ -239,8 +239,8 @@ const Home: React.FC = () => {
       </section>
 
       {/* Moving Moments - Uploaded Videos Only */}
-      <section className="py-24 bg-zinc-950 border-y border-white/5 overflow-hidden">
-        <div className="px-6 md:px-12 max-w-[1400px] mx-auto mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <section className="py-12 md:py-16 bg-zinc-950 border-y border-white/5 overflow-hidden">
+        <div className="px-6 md:px-12 max-w-[1400px] mx-auto mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <SectionHeading 
             label="Motion Poems" 
             title="Flickering Heartbeats" 
@@ -314,7 +314,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Final CTA - Tightened */}
-      <section className="py-24 px-6 text-center relative overflow-hidden">
+      <section className="py-16 md:py-24 px-6 text-center relative overflow-hidden">
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 1 }}>
           <h2 className="font-serif italic text-4xl md:text-5xl text-white mb-6 relative z-10 tracking-tight">Let’s archive your soul.</h2>
           <Link to="/contact" className="inline-block bg-white text-zinc-950 px-8 py-3.5 rounded-full font-sans text-[0.6rem] uppercase tracking-[0.4em] font-bold hover:bg-amber-600 hover:text-white transition-all duration-500 relative z-10 shadow-2xl">
